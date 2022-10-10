@@ -10,6 +10,14 @@ import UIKit
 final class ViewController: UIViewController {
 // final keyword : 클래스 상속을 불가능하게 해서 다이렉트 디스패치가 일어나도록 함
 	
+	private lazy var containerView: UIView = {
+		let view = UIView()
+		view.addSubview(emailView)
+		view.addSubview(passwordView)
+		view.addSubview(loginButton)
+		return view
+	}()
+	
 	private lazy var emailView: UIView = {
 		let view = UIView()
 		view.addSubview(emailTextFieldView)
@@ -130,21 +138,13 @@ final class ViewController: UIViewController {
 		button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
 		return button
 	}()
-	
-	private lazy var stackView: UIStackView = {
-		let st = UIStackView(arrangedSubviews: [emailView, passwordView])
-		st.spacing = 18
-		st.axis = .vertical
-		st.distribution = .fillEqually
-		st.alignment = .fill
-		return st
-	}()
-	
-	private let textViewHeight: CGFloat = 68
+
 	private let textViewMargin: CGFloat = 18
 	
 	lazy var emailInfoLabelCenterYConstraint = emailInfoLabel.centerYAnchor.constraint(equalTo: emailTextFieldView.centerYAnchor)
 	lazy var passwordInfoLabelCenterYConstraint = passwordInfoLabel.centerYAnchor.constraint(equalTo: passwordTextFieldView.centerYAnchor)
+	lazy var emailViewHeightConstraint = emailView.heightAnchor.constraint(equalToConstant: 48)
+	lazy var passwordViewHeightConstraint = passwordView.heightAnchor.constraint(equalToConstant: 48)
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -158,14 +158,15 @@ final class ViewController: UIViewController {
 	func setUI() {
 		view.backgroundColor = .black
 		
-		view.addSubview(stackView)
-		view.addSubview(loginButton)
+		view.addSubview(containerView)
 
-		stackView.translatesAutoresizingMaskIntoConstraints = false
+		containerView.translatesAutoresizingMaskIntoConstraints = false
+		emailView.translatesAutoresizingMaskIntoConstraints = false
 		emailTextFieldView.translatesAutoresizingMaskIntoConstraints = false
 		emailInfoLabel.translatesAutoresizingMaskIntoConstraints = false
 		emailTextField.translatesAutoresizingMaskIntoConstraints = false
 		emailValidationLabel.translatesAutoresizingMaskIntoConstraints = false
+		passwordView.translatesAutoresizingMaskIntoConstraints = false
 		passwordTextFieldView.translatesAutoresizingMaskIntoConstraints = false
 		passwordInfoLabel.translatesAutoresizingMaskIntoConstraints = false
 		passwordTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -174,11 +175,16 @@ final class ViewController: UIViewController {
 		loginButton.translatesAutoresizingMaskIntoConstraints = false
 		
 		NSLayoutConstraint.activate([
-			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-			stackView.heightAnchor.constraint(equalToConstant: textViewHeight * 2 + textViewMargin),
+			containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
+			containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+			containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			containerView.heightAnchor.constraint(equalToConstant: 48 * 3 + 18 * 2),
+			
+			emailView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+			emailView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+			emailView.topAnchor.constraint(equalTo: containerView.topAnchor),
+			emailViewHeightConstraint,
 			
 			emailTextFieldView.leadingAnchor.constraint(equalTo: emailView.leadingAnchor),
 			emailTextFieldView.trailingAnchor.constraint(equalTo: emailView.trailingAnchor),
@@ -197,6 +203,11 @@ final class ViewController: UIViewController {
 			emailValidationLabel.leadingAnchor.constraint(equalTo: emailView.leadingAnchor, constant: 3),
 			emailValidationLabel.trailingAnchor.constraint(equalTo: emailView.trailingAnchor),
 			emailValidationLabel.topAnchor.constraint(equalTo: emailView.topAnchor, constant: 53),
+			
+			passwordView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+			passwordView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+			passwordView.topAnchor.constraint(equalTo: emailView.bottomAnchor, constant: 18),
+			passwordViewHeightConstraint,
 			
 			passwordTextFieldView.leadingAnchor.constraint(equalTo: passwordView.leadingAnchor),
 			passwordTextFieldView.trailingAnchor.constraint(equalTo: passwordView.trailingAnchor),
@@ -222,7 +233,7 @@ final class ViewController: UIViewController {
 			
 			loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
 			loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-			loginButton.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 15),
+			loginButton.topAnchor.constraint(equalTo: passwordView.bottomAnchor, constant: 18),
 			loginButton.heightAnchor.constraint(equalToConstant: 48)
 		])
 	}
@@ -287,7 +298,7 @@ extension ViewController: UITextFieldDelegate {
 		}
 		
 		UIView.animate(withDuration: 0.3) {
-			self.stackView.layoutIfNeeded()
+			self.view.layoutIfNeeded()
 		}
 	}
 	
@@ -311,11 +322,13 @@ extension ViewController: UITextFieldDelegate {
 		}
 		
 		UIView.animate(withDuration: 0.3) {
-			self.stackView.layoutIfNeeded()
+			self.view.layoutIfNeeded()
 		}
 		
 		// MARK: 아이디 valid 체크
 		if textField == emailTextField {
+			emailViewHeightConstraint.constant = 68
+			
 			guard let id = textField.text else { return }
 			
 			if isValidId(value: id) {
@@ -329,6 +342,8 @@ extension ViewController: UITextFieldDelegate {
 		
 		// MARK: 비밀번호 valid 체크
 		if textField == passwordTextField {
+			passwordViewHeightConstraint.constant = 68
+			
 			guard let pw = textField.text else { return }
 			
 			if isValidPassword(value: pw) {
