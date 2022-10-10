@@ -170,3 +170,15 @@ ios 앱에서 로그인 구현하기
   loginButton.backgroundColor = .red
   loginButton.isEnabled = true
   ```
+
+ <br/>
+
+- 비밀번호 표시/숨김 구현
+
+  ```txt
+    ⭐️ UITextField의 속성중 isSecureTextEntry를 toggle 시켜준다.
+  ```
+
+  ```Swift
+  passwordTextField.isSecureTextEntry.toggle()
+  ```
