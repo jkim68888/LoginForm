@@ -56,8 +56,6 @@ final class ViewController: UIViewController {
 	
 	private var emailValidationLabel: UILabel = {
 		let label = UILabel()
-		label.textColor = .red
-		label.text = "이메일주소 또는 전화번호의 형식에 맞지 않습니다."
 		label.font = .systemFont(ofSize: 14)
 		return label
 	}()
@@ -115,8 +113,6 @@ final class ViewController: UIViewController {
 	
 	private var passwordValidationLabel: UILabel = {
 		let label = UILabel()
-		label.textColor = .red
-		label.text = "8자리~10자리의 영문과 숫자로 입력해주세요."
 		label.font = .systemFont(ofSize: 14)
 		return label
 	}()
@@ -146,9 +142,6 @@ final class ViewController: UIViewController {
 	
 	private let textViewHeight: CGFloat = 68
 	private let textViewMargin: CGFloat = 18
-	
-	private let emailValidationLabelColor: UIColor = .red
-	private let emailValidationLabelMessage: String = "이메일주소 또는 전화번호의 형식에 맞지 않습니다."
 	
 	lazy var emailInfoLabelCenterYConstraint = emailInfoLabel.centerYAnchor.constraint(equalTo: emailTextFieldView.centerYAnchor)
 	lazy var passwordInfoLabelCenterYConstraint = passwordInfoLabel.centerYAnchor.constraint(equalTo: passwordTextFieldView.centerYAnchor)
@@ -251,6 +244,31 @@ final class ViewController: UIViewController {
 		
 		present(alert, animated: true)
 	}
+	
+	func isValidEmail(value: String) -> Bool {
+		let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+		let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+		
+		return emailTest.evaluate(with: value)
+	}
+	
+	func isValidPhone(value: String) -> Bool {
+		let PHONE_REGEX = #"[0-9]{3}\-[0-9]{4}\-[0-9]{4}"#
+		let phoneTest = NSPredicate(format: "SELF MATCHES %@", PHONE_REGEX)
+		
+		return phoneTest.evaluate(with: value)
+	}
+	
+	func isValidId(value: String) -> Bool {
+		return isValidEmail(value: value) || isValidPhone(value: value)
+	}
+	
+	func isValidPassword(value: String) -> Bool {
+		let passwordRegEx =  ("(?=.*[A-Za-z])(?=.*[0-9]).{8,20}")
+		let passwordTest = NSPredicate(format: "SELF MATCHES %@", passwordRegEx)
+		
+		return passwordTest.evaluate(with: value)
+	}
 }
 
 extension ViewController: UITextFieldDelegate {
@@ -271,7 +289,6 @@ extension ViewController: UITextFieldDelegate {
 		UIView.animate(withDuration: 0.3) {
 			self.stackView.layoutIfNeeded()
 		}
-		
 	}
 	
 	func textFieldDidEndEditing(_ textField: UITextField) {
@@ -296,6 +313,32 @@ extension ViewController: UITextFieldDelegate {
 		UIView.animate(withDuration: 0.3) {
 			self.stackView.layoutIfNeeded()
 		}
+		
+		// MARK: 아이디 valid 체크
+		if textField == emailTextField {
+			guard let id = textField.text else { return }
+			
+			if isValidId(value: id) {
+				emailValidationLabel.textColor = .green
+				emailValidationLabel.text = "올바른 형식입니다."
+			} else {
+				emailValidationLabel.textColor = .red
+				emailValidationLabel.text = "올바른 이메일 또는 전화번호 형식이 아닙니다."
+			}
+		}
+		
+		// MARK: 비밀번호 valid 체크
+		if textField == passwordTextField {
+			guard let pw = textField.text else { return }
+			
+			if isValidPassword(value: pw) {
+				passwordValidationLabel.textColor = .green
+				passwordValidationLabel.text = "올바른 형식입니다."
+			} else {
+				passwordValidationLabel.textColor = .red
+				passwordValidationLabel.text = "숫자+문자 포함해서 8~20글자 사이로 입력하세요."
+			}
+		}
 	}
 
 	@objc func textFieldEditingChanged(textField: UITextField) {
@@ -306,7 +349,8 @@ extension ViewController: UITextFieldDelegate {
 			}
 		}
 		
-		guard let email = emailTextField.text, !email.isEmpty, let password = passwordTextField.text, !password.isEmpty else {
+		// MARK: 로그인 버튼 활성화
+		guard let email = emailTextField.text, !email.isEmpty, isValidId(value: email), let password = passwordTextField.text, !password.isEmpty, isValidPassword(value: password) else {
 			loginButton.backgroundColor = .clear
 			loginButton.isEnabled = false
 			return
@@ -314,5 +358,10 @@ extension ViewController: UITextFieldDelegate {
 		
 		loginButton.backgroundColor = .red
 		loginButton.isEnabled = true
+	}
+	
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+		self.view.endEditing(true)
+		return false
 	}
 }
