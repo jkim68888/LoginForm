@@ -145,6 +145,7 @@ final class ViewController: UIViewController {
 	lazy var passwordInfoLabelCenterYConstraint = passwordInfoLabel.centerYAnchor.constraint(equalTo: passwordTextFieldView.centerYAnchor)
 	lazy var emailViewHeightConstraint = emailView.heightAnchor.constraint(equalToConstant: 48)
 	lazy var passwordViewHeightConstraint = passwordView.heightAnchor.constraint(equalToConstant: 48)
+	lazy var containerViewHeightConstraint = containerView.heightAnchor.constraint(equalToConstant: 48 * 3 + 18 * 2)
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -179,7 +180,7 @@ final class ViewController: UIViewController {
 			containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
 			containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-			containerView.heightAnchor.constraint(equalToConstant: 48 * 3 + 18 * 2),
+			containerViewHeightConstraint,
 			
 			emailView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
 			emailView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
@@ -328,6 +329,7 @@ extension ViewController: UITextFieldDelegate {
 		// MARK: 아이디 valid 체크
 		if textField == emailTextField {
 			emailViewHeightConstraint.constant = 68
+			containerViewHeightConstraint.constant = 68 * 2 + 48 + 18 * 2
 			
 			guard let id = textField.text else { return }
 			
@@ -343,6 +345,7 @@ extension ViewController: UITextFieldDelegate {
 		// MARK: 비밀번호 valid 체크
 		if textField == passwordTextField {
 			passwordViewHeightConstraint.constant = 68
+			containerViewHeightConstraint.constant = 68 * 2 + 48 + 18 * 2
 			
 			guard let pw = textField.text else { return }
 			
