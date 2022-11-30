@@ -1,14 +1,13 @@
 //
-//  ViewController.swift
+//  LoginView.swift
 //  LoginForm
 //
-//  Created by 김지현 on 2022/10/02.
+//  Created by 김지현 on 2022/11/29.
 //
 
 import UIKit
 
-final class ViewController: UIViewController {
-// final keyword : 클래스 상속을 불가능하게 해서 다이렉트 디스패치가 일어나도록 함
+class LoginView: UIView {
 	
 	private lazy var containerView: UIView = {
 		let view = UIView()
@@ -26,8 +25,7 @@ final class ViewController: UIViewController {
 	}()
 	
 	private lazy var emailTextFieldView: UIView = {
-	// addSubview를 사용하려면 lazy var 로 선언해야함
-		
+		// addSubview를 사용하려면 lazy var 로 선언해야함
 		let view = UIView()
 		view.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
 		view.layer.cornerRadius = 5
@@ -47,8 +45,6 @@ final class ViewController: UIViewController {
 	}()
 	
 	private lazy var emailTextField: UITextField = {
-	// addTarget을 사용하려면 lazy var 로 선언해야함
-		
 		let tf = UITextField()
 		tf.frame.size.height = 48
 		tf.backgroundColor = .clear
@@ -77,7 +73,6 @@ final class ViewController: UIViewController {
 	
 	private lazy var passwordTextFieldView: UIView = {
 		let view = UIView()
-		self.view.addSubview(view)
 		view.backgroundColor = #colorLiteral(red: 0.1298420429, green: 0.1298461258, blue: 0.1298439503, alpha: 1)
 		view.layer.cornerRadius = 5
 		view.layer.masksToBounds = true
@@ -95,7 +90,7 @@ final class ViewController: UIViewController {
 		return label
 	}()
 	
-	private lazy var passwordTextField: UITextField = {
+	lazy var passwordTextField: UITextField = {
 		let tf = UITextField()
 		tf.frame.size.height = 48
 		tf.backgroundColor = .clear
@@ -110,12 +105,11 @@ final class ViewController: UIViewController {
 		return tf
 	}()
 	
-	private let passwordSecureButton: UIButton = {
+	let passwordSecureButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.setTitle("표시", for: .normal)
 		button.setTitleColor(.white, for: .normal)
 		button.titleLabel?.font = .systemFont(ofSize: 14, weight: .light)
-		button.addTarget(self, action: #selector(passwordSecureModeSetting), for: .touchUpInside)
 		return button
 	}()
 	
@@ -125,7 +119,7 @@ final class ViewController: UIViewController {
 		return label
 	}()
 	
-	private let loginButton: UIButton = {
+	let loginButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.backgroundColor = .clear
 		button.layer.cornerRadius = 5
@@ -135,32 +129,39 @@ final class ViewController: UIViewController {
 		button.setTitle("로그인", for: .normal)
 		button.titleLabel?.font = .systemFont(ofSize: 16)
 		button.isEnabled = false
-		button.addTarget(self, action: #selector(loginButtonTapped), for: .touchUpInside)
 		return button
 	}()
-
-	private let textViewMargin: CGFloat = 18
 	
+	private let textViewMargin: CGFloat = 18
 	lazy var emailInfoLabelCenterYConstraint = emailInfoLabel.centerYAnchor.constraint(equalTo: emailTextFieldView.centerYAnchor)
 	lazy var passwordInfoLabelCenterYConstraint = passwordInfoLabel.centerYAnchor.constraint(equalTo: passwordTextFieldView.centerYAnchor)
 	lazy var emailViewHeightConstraint = emailView.heightAnchor.constraint(equalToConstant: 48)
 	lazy var passwordViewHeightConstraint = passwordView.heightAnchor.constraint(equalToConstant: 48)
 	lazy var containerViewHeightConstraint = containerView.heightAnchor.constraint(equalToConstant: 48 * 3 + 18 * 2)
 
-	override func viewDidLoad() {
-		super.viewDidLoad()
-		
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		setup()
+		addViews()
+		setConstraints()
+	}
+	
+	required init?(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+	
+	func setup() {
+		backgroundColor = .black
 		emailTextField.delegate = self
 		passwordTextField.delegate = self
-		
-		setUI()
 	}
-
-	func setUI() {
-		view.backgroundColor = .black
-		
-		view.addSubview(containerView)
-
+	
+	func addViews() {
+		self.addSubview(containerView)
+		self.addSubview(loginButton)
+	}
+	
+	func setConstraints() {
 		containerView.translatesAutoresizingMaskIntoConstraints = false
 		emailView.translatesAutoresizingMaskIntoConstraints = false
 		emailTextFieldView.translatesAutoresizingMaskIntoConstraints = false
@@ -176,10 +177,10 @@ final class ViewController: UIViewController {
 		loginButton.translatesAutoresizingMaskIntoConstraints = false
 		
 		NSLayoutConstraint.activate([
-			containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-			containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
-			containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			containerView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30),
+			containerView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30),
+			containerView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+			containerView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
 			containerViewHeightConstraint,
 			
 			emailView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
@@ -218,7 +219,7 @@ final class ViewController: UIViewController {
 			passwordInfoLabel.leadingAnchor.constraint(equalTo: passwordTextFieldView.leadingAnchor, constant: 8),
 			passwordInfoLabel.trailingAnchor.constraint(equalTo: passwordTextFieldView.trailingAnchor, constant: -8),
 			passwordInfoLabelCenterYConstraint,
-
+			
 			passwordTextField.leadingAnchor.constraint(equalTo: passwordTextFieldView.leadingAnchor, constant: 8),
 			passwordTextField.trailingAnchor.constraint(equalTo: passwordTextFieldView.trailingAnchor, constant: -8),
 			passwordTextField.topAnchor.constraint(equalTo: passwordTextFieldView.topAnchor, constant: 15),
@@ -232,31 +233,14 @@ final class ViewController: UIViewController {
 			passwordValidationLabel.trailingAnchor.constraint(equalTo: passwordView.trailingAnchor),
 			passwordValidationLabel.topAnchor.constraint(equalTo: passwordView.topAnchor, constant: 53),
 			
-			loginButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
-			loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
+			loginButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 30),
+			loginButton.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -30),
 			loginButton.topAnchor.constraint(equalTo: passwordView.bottomAnchor, constant: 18),
 			loginButton.heightAnchor.constraint(equalToConstant: 48)
 		])
 	}
 	
-	@objc func passwordSecureModeSetting() {
-		passwordTextField.isSecureTextEntry.toggle()
-	}
-	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		self.view.endEditing(true)
-	}
-	
-	@objc func loginButtonTapped() {
-		let alert = UIAlertController(title: "로그인 되었습니다:)", message: nil, preferredStyle: .alert)
-		
-		let success = UIAlertAction(title: "확인", style: .default)
-		
-		alert.addAction(success)
-		
-		present(alert, animated: true)
-	}
-	
+	// MARK: - validation
 	func isValidEmail(value: String) -> Bool {
 		let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
 		let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
@@ -281,9 +265,11 @@ final class ViewController: UIViewController {
 		
 		return passwordTest.evaluate(with: value)
 	}
+	
 }
 
-extension ViewController: UITextFieldDelegate {
+// MARK: - textfield extension
+extension LoginView: UITextFieldDelegate {
 	
 	func textFieldDidBeginEditing(_ textField: UITextField) {
 		if textField == emailTextField {
@@ -299,7 +285,7 @@ extension ViewController: UITextFieldDelegate {
 		}
 		
 		UIView.animate(withDuration: 0.3) {
-			self.view.layoutIfNeeded()
+			self.containerView.layoutIfNeeded()
 		}
 	}
 	
@@ -323,10 +309,10 @@ extension ViewController: UITextFieldDelegate {
 		}
 		
 		UIView.animate(withDuration: 0.3) {
-			self.view.layoutIfNeeded()
+			self.containerView.layoutIfNeeded()
 		}
 		
-		// MARK: 아이디 valid 체크
+		// MARK: - 아이디 valid 체크
 		if textField == emailTextField {
 			emailViewHeightConstraint.constant = 68
 			containerViewHeightConstraint.constant = 68 * 2 + 48 + 18 * 2
@@ -342,7 +328,7 @@ extension ViewController: UITextFieldDelegate {
 			}
 		}
 		
-		// MARK: 비밀번호 valid 체크
+		// MARK: - 비밀번호 valid 체크
 		if textField == passwordTextField {
 			passwordViewHeightConstraint.constant = 68
 			containerViewHeightConstraint.constant = 68 * 2 + 48 + 18 * 2
@@ -357,8 +343,19 @@ extension ViewController: UITextFieldDelegate {
 				passwordValidationLabel.text = "숫자+문자 포함해서 8~20글자 사이로 입력하세요."
 			}
 		}
+		
+		// MARK: - 로그인 버튼 활성화
+		guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+		
+		if !email.isEmpty, isValidId(value: email), !password.isEmpty, isValidPassword(value: password) {
+			loginButton.backgroundColor = .red
+			loginButton.isEnabled = true
+		} else {
+			loginButton.backgroundColor = .clear
+			loginButton.isEnabled = false
+		}
 	}
-
+	
 	@objc func textFieldEditingChanged(textField: UITextField) {
 		if textField.text?.count == 1 {
 			if textField.text?.first == " " {
@@ -366,20 +363,10 @@ extension ViewController: UITextFieldDelegate {
 				return
 			}
 		}
-		
-		// MARK: 로그인 버튼 활성화
-		guard let email = emailTextField.text, !email.isEmpty, isValidId(value: email), let password = passwordTextField.text, !password.isEmpty, isValidPassword(value: password) else {
-			loginButton.backgroundColor = .clear
-			loginButton.isEnabled = false
-			return
-		}
-		
-		loginButton.backgroundColor = .red
-		loginButton.isEnabled = true
 	}
 	
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-		self.view.endEditing(true)
-		return false
+		textField.resignFirstResponder()
+		return true
 	}
 }
